@@ -45,6 +45,7 @@ static void new_block(tt_tetris *tetris) {
 	tetris->current_block = blocks[rnd];
 	reset_block(tetris);
 	tetris->next_block = blocks[rnd];
+	tetris->speed *= .9; // increase game speed with each new block
 }
 
 /**
@@ -112,9 +113,11 @@ static bool valid_move(tt_tetris *tetris, int x_move, int y_move) {
 	int len = tetris->current_block.width;
 
 	if (x_move && x_move < 0) { // move left
+		if (tetris->board[tetris->current_block.y][tetris->current_block.x + x_move]) return 0;
 		return 0 < tetris->current_block.x || check_bounds(tetris->current_block, 'L');
 	}	
 	if (x_move && 0 < x_move) { // move right
+		if (tetris->board[tetris->current_block.y][tetris->current_block.x + x_move]) return 0;
 		return tetris->current_block.x + len < BOARD_X || check_bounds(tetris->current_block, 'R');
 	}	
 	if (!y_move && !x_move) { // rotation
@@ -125,6 +128,9 @@ static bool valid_move(tt_tetris *tetris, int x_move, int y_move) {
 		) || check_bounds(rotate_block(tetris->current_block), 'S');
 	}
 	// move down
+	for (int i = 0; i < len; i++) {
+		if (tetris->board[tetris->current_block.y+2][tetris->current_block.x+i]) return 0;
+	}
 	return (tetris->current_block.y + 2 + y_move < 23 - len && !x_move) || check_bounds(tetris->current_block, 'D');
 }
 
@@ -179,7 +185,8 @@ static void clear_board(tt_tetris *tetris) {
  * @return a bool that is true if any game over condition is valid.
  */
 bool gm_is_game_over(tt_tetris *tetris) {
-	return false;
+	// return false;
+	return (tetris->current_block.y < 2) && !valid_move(tetris, 0, 1);
 }
 
 /**
