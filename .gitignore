@@ -1,0 +1,5 @@
+/main
+/._Makefile
+/.clang-format
+/*.o
+/._tt_game.c
