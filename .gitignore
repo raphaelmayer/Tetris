@@ -3,3 +3,4 @@
 /.clang-format
 /*.o
 /._tt_game.c
+/.vscode
