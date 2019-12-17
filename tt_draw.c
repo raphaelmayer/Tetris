@@ -129,12 +129,14 @@ void dw_draw_game_window(tt_tetris *tetris) {
 		mvwprintw(tetris->w_game, y + gameing_area_y, gameing_area_x + 21, " ||>");
 		for (int x = 0; x < BOARD_X; x++) {
 			if (tetris->board[y][x]) {
-				mvwprintw(tetris->w_game, gameing_area_y + y, gameing_area_x + x*2, "%c", tetris->board[y][x]);
+				mvwprintw(tetris->w_game, gameing_area_y + y, gameing_area_x + x*2, "%c", CHAR_OCCUPIED);
 			}
 		}
 	}
 	mvwprintw(tetris->w_game, 20 + gameing_area_y, gameing_area_x - 4, "<|| = = = = = = = = = = = ||>");
 	mvwprintw(tetris->w_game, 21 + gameing_area_y, gameing_area_x, "V V V V V V V V V V V    ");
+	mvwprintw(tetris->w_game, 22 + gameing_area_y, gameing_area_x, "x: %d", tetris->current_block.x);
+	mvwprintw(tetris->w_game, 23 + gameing_area_y, gameing_area_x, "y: %d", tetris->current_block.y);
 
 	// draw current block to the board
 	for (int y = 0; y < tetris->current_block.width; ++y) {

@@ -1,4 +1,5 @@
 #include "tt_game.h"
+#include "tt_types.h"
 
 /**
  * Adds the currently falling block to the board.
@@ -7,11 +8,11 @@
  */
 static void add_block_to_board(tt_tetris *tetris) {
 	int len = tetris->current_block.width;
-	int offset_y = BOARD_Y - tetris->current_block.y - len; // for empty rows, when reaching ground
+	// int offset_y = BOARD_Y - tetris->current_block.y - len; // for empty rows, when reaching ground
 	for (int i = 0; i < len; i++) {
 		for (int j = 0; j < len; j++) {
 			if (tetris->current_block.array[i][j]) {
-				tetris->board[BOARD_Y - len + i - offset_y][tetris->current_block.x + j] = 'O';		
+				tetris->board[tetris->current_block.y + i][tetris->current_block.x + j] = 1;		
 			}
 		}
 	}
@@ -29,23 +30,21 @@ static void reset_block(tt_tetris *tetris) {}
  * (current_block).
  * @param tetris
  */
-
-tetris_block blocks[] = { 
-	(tetris_block){ 2, 0, 0, {{ 1, 1 }, { 1, 1 }} }, // O
-	(tetris_block){ 3, 0, 0, {{ 0, 1, 0 }, { 0, 1, 0 }, { 1, 1, 0 }} }, // J
-	(tetris_block){ 3, 0, 0, {{ 0, 1, 0 }, { 0, 1, 0 }, { 0, 1, 1 }} }, // L
-	(tetris_block){ 3, 0, 0, {{ 0, 1, 0 }, { 1, 1, 1 }, { 0, 0, 0 }} }, // T
-	(tetris_block){ 4, 0, 0, {{ 0, 1, 0, 0 }, { 0, 1, 0, 0 }, { 0, 1, 0, 0 }, { 0, 1, 0, 0 }} }, // I
-	(tetris_block){ 3, 0, 0, {{ 0, 1, 1 }, { 1, 1, 0 }, { 0, 0, 0 }} }, // S
-	(tetris_block){ 3, 0, 0, {{ 1, 1, 0 }, { 0, 1, 1 }, { 0, 0, 0 }} } // Z
-};
-
 static void new_block(tt_tetris *tetris) {
+	tetris_block blocks[] = { 
+		(tetris_block){ 2, 0, 0, {{ 1, 1 }, { 1, 1 }} }, // O
+		(tetris_block){ 3, 0, 0, {{ 0, 1, 0 }, { 0, 1, 0 }, { 1, 1, 0 }} }, // J
+		(tetris_block){ 3, 0, 0, {{ 0, 1, 0 }, { 0, 1, 0 }, { 0, 1, 1 }} }, // L
+		(tetris_block){ 3, 0, 0, {{ 0, 1, 0 }, { 1, 1, 1 }, { 0, 0, 0 }} }, // T
+		(tetris_block){ 4, 0, 0, {{ 0, 1, 0, 0 }, { 0, 1, 0, 0 }, { 0, 1, 0, 0 }, { 0, 1, 0, 0 }} }, // I
+		(tetris_block){ 3, 0, 0, {{ 0, 1, 1 }, { 1, 1, 0 }, { 0, 0, 0 }} }, // S
+		(tetris_block){ 3, 0, 0, {{ 1, 1, 0 }, { 0, 1, 1 }, { 0, 0, 0 }} } // Z
+	};
 	int rnd = rand() % 7;
-	tetris->current_block = blocks[rnd];
+	tetris->current_block = tetris->next_block;
 	reset_block(tetris);
 	tetris->next_block = blocks[rnd];
-	tetris->speed *= .9; // increase game speed with each new block
+	// tetris->speed *= .9; // increase game speed with each new block
 }
 
 /**
@@ -93,7 +92,7 @@ bool check_bounds(tetris_block block, char dir) {
 	return 1;
 }
 
-// function to rotate the matrix 90 degree clockwise 
+// function to rotate a block by 90 degrees clockwise 
 tetris_block rotate_block(tetris_block block) { 
 	// tetris_block block = tetris->current_block;
 	int len = block.width;
@@ -109,29 +108,45 @@ tetris_block rotate_block(tetris_block block) {
 	return block;
 } 
 
+// returns true, if the current block would collide with any other 
+// already set blocks when doing the proposed move
+bool would_collide(tt_tetris *tetris, int x_move, int y_move) {
+	tetris_block block = tetris->current_block;
+	int len = block.width;
+	for (int i = 0; i < len; i++) {
+		for (int j = 0; j < len; j++) {
+			if (tetris->board[block.y+len-1-j + y_move][block.x+i + x_move] && block.array[len-1-j][i]) return 1;
+		}
+	}
+	return 0;
+}
+// returns true, if the complete bounding box of a block
+// is within the game area (bounding box: square, that contains tetromino)
+bool bounding_box_within_gamearea(tetris_block block) {
+	int len = block.width;
+	return (
+		block.x >= 0 && 
+		block.x + len <= BOARD_X && 
+		block.y + len <= BOARD_Y
+	);
+}
 static bool valid_move(tt_tetris *tetris, int x_move, int y_move) {
-	int len = tetris->current_block.width;
+	if (would_collide(tetris, x_move, y_move)) return 0;
+	
+	tetris_block block = tetris->current_block;
+	int len = block.width;
 
-	if (x_move && x_move < 0) { // move left
-		if (tetris->board[tetris->current_block.y][tetris->current_block.x + x_move]) return 0;
-		return 0 < tetris->current_block.x || check_bounds(tetris->current_block, 'L');
+	if (x_move < 0) { // left
+		return 0 < block.x || check_bounds(block, 'L');
 	}	
-	if (x_move && 0 < x_move) { // move right
-		if (tetris->board[tetris->current_block.y][tetris->current_block.x + x_move]) return 0;
-		return tetris->current_block.x + len < BOARD_X || check_bounds(tetris->current_block, 'R');
+	if (x_move > 0) { // right
+		return block.x + len < BOARD_X || check_bounds(block, 'R');
 	}	
 	if (!y_move && !x_move) { // rotation
-		return (
-			0 < tetris->current_block.x + 1 
-			&& tetris->current_block.x + len < BOARD_X 
-			&& tetris->current_block.y + len <= BOARD_Y
-		) || check_bounds(rotate_block(tetris->current_block), 'S');
+		return bounding_box_within_gamearea(block) || check_bounds(rotate_block(block), 'S');
 	}
-	// move down
-	for (int i = 0; i < len; i++) {
-		if (tetris->board[tetris->current_block.y+2][tetris->current_block.x+i]) return 0;
-	}
-	return (tetris->current_block.y + 2 + y_move < 23 - len && !x_move) || check_bounds(tetris->current_block, 'D');
+	// down
+	return (block.y + len < BOARD_Y) || check_bounds(block, 'D');
 }
 
 /**
@@ -159,7 +174,6 @@ static bool try_horizontal_move(tt_tetris *tetris, enum tt_movement move) {
 	}
 	return valid;
 }
-
 static bool try_rotation(tt_tetris *tetris) {
 	bool valid = valid_move(tetris, 0, 0);
 	if (valid) {
