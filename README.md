@@ -10,11 +10,9 @@ make && ./main
 ```
 
 ##### *to do*: 
-- fall move (SPACE)
 - block spawn
 - background? ('-')
-- clean full rows
+- clear full rows
 - score
-- next block display
 - slow motion
 - speed up over time

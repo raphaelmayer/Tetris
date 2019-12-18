@@ -136,8 +136,25 @@ void dw_draw_game_window(tt_tetris *tetris) {
 	mvwprintw(tetris->w_game, 20 + gameing_area_y, gameing_area_x - 4, "<|| = = = = = = = = = = = ||>");
 	mvwprintw(tetris->w_game, 21 + gameing_area_y, gameing_area_x, "V V V V V V V V V V V    ");
 	mvwprintw(tetris->w_game, 22 + gameing_area_y, gameing_area_x, "x: %d", tetris->current_block.x);
-	mvwprintw(tetris->w_game, 23 + gameing_area_y, gameing_area_x, "y: %d", tetris->current_block.y);
-
+	mvwprintw(tetris->w_game, 23 + gameing_area_y, gameing_area_x - 10, "y: %d", tetris->current_block.y);
+	
+	// draw next block display borders
+	mvwprintw(tetris->w_game, gameing_area_y, gameing_area_x - 15, "=========");
+	mvwprintw(tetris->w_game, gameing_area_y + 5, gameing_area_x - 15, "=========");
+	for (int i = 1; i < 5; i++) {
+		mvwprintw(tetris->w_game, gameing_area_y + i, gameing_area_x - 15, "|");
+		mvwprintw(tetris->w_game, gameing_area_y + i, gameing_area_x - 7, "|");
+	}
+	
+	// draw next block
+	for (int i = 0; i < tetris->next_block.width; i++) {
+		for (int j = 0; j < tetris->next_block.width; j++) {
+			if (tetris->next_block.array[i][j]) {
+				mvwprintw(tetris->w_game, i + gameing_area_y+1, gameing_area_x - 13 + j*2, "%c", CHAR_OCCUPIED);
+			}
+		}
+	}
+	
 	// draw current block to the board
 	for (int y = 0; y < tetris->current_block.width; ++y) {
 		for (int x = 0; x < tetris->current_block.width; ++x) {

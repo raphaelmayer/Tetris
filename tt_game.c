@@ -156,10 +156,14 @@ static bool valid_move(tt_tetris *tetris, int x_move, int y_move) {
  * @param tetris
  * @return
  */
-static bool try_vertical_move(tt_tetris *tetris) {
+static bool try_vertical_move(tt_tetris *tetris, enum tt_movement move) {
 	bool valid = valid_move(tetris, 0, 1);
 	if (valid) {
 		++tetris->current_block.y;
+		
+		if (move == TT_FALL_DOWN) {
+			try_vertical_move(tetris, TT_FALL_DOWN);
+		}
 	} else {
 		add_block_to_board(tetris);
 		new_block(tetris);
@@ -213,9 +217,9 @@ void gm_move_block(tt_tetris *tetris, enum tt_movement move) {
 	switch (move) {
 		case TT_LEFT: try_horizontal_move(tetris, TT_LEFT); break;
 		case TT_RIGHT: try_horizontal_move(tetris, TT_RIGHT); break;
-		// case TT_FALL_DOWN: try_vertical_move(tetris); break;
+		case TT_FALL_DOWN: try_vertical_move(tetris, TT_FALL_DOWN); break;
 		case TT_ROTATE: try_rotation(tetris); break;
-		case TT_DOWN: try_vertical_move(tetris); break;
+		case TT_DOWN: try_vertical_move(tetris, TT_DOWN); break;
 		default: break;
 	}
 }
