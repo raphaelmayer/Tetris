@@ -25,7 +25,7 @@ typedef enum { NEW_GAME, HIGH_SCORE, HELP_MENU, QUIT } cursor_main_menu;
 /**
  * Enum to list all possible block movements.
  */
-enum tt_movement { TT_LEFT, TT_RIGHT, TT_DOWN, TT_FALL_DOWN, TT_ROTATE };
+enum tt_movement { TT_LEFT, TT_RIGHT, TT_DOWN, TT_FALL_DOWN, TT_ROTATE, TT_ALTER_TIME };
 
 /**
  * Packs all needed information about a block into a struct.
@@ -57,6 +57,7 @@ typedef struct {
 	tetris_block current_block;
 	unsigned score;
 	unsigned speed;
+	unsigned block_count;
 
 	WINDOW *w_main;
 	WINDOW *w_help;

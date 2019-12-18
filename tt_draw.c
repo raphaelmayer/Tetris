@@ -137,6 +137,7 @@ void dw_draw_game_window(tt_tetris *tetris) {
 	mvwprintw(tetris->w_game, 21 + gameing_area_y, gameing_area_x, "V V V V V V V V V V V    ");
 	mvwprintw(tetris->w_game, 22 + gameing_area_y, gameing_area_x, "x: %d", tetris->current_block.x);
 	mvwprintw(tetris->w_game, 23 + gameing_area_y, gameing_area_x - 10, "y: %d", tetris->current_block.y);
+	mvwprintw(tetris->w_game, 24 + gameing_area_y, gameing_area_x - 10, "block_count: %d", tetris->block_count);
 	
 	// draw next block display borders
 	mvwprintw(tetris->w_game, gameing_area_y, gameing_area_x - 15, "=========");

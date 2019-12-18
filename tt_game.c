@@ -40,11 +40,12 @@ static void new_block(tt_tetris *tetris) {
 		(tetris_block){ 3, 0, 0, {{ 0, 1, 1 }, { 1, 1, 0 }, { 0, 0, 0 }} }, // S
 		(tetris_block){ 3, 0, 0, {{ 1, 1, 0 }, { 0, 1, 1 }, { 0, 0, 0 }} } // Z
 	};
-	// int rnd = rand() % 7;
+	int rnd = rand() % 7;
 	tetris->current_block = tetris->next_block;
 	reset_block(tetris);
-	tetris->next_block = blocks[4];
-	// tetris->speed *= .9; // increase game speed with each new block
+	tetris->next_block = blocks[rnd]; // 4
+	tetris->speed *= .95; // increase game speed with each new block
+	++tetris->block_count;
 }
 
 /**
@@ -62,34 +63,34 @@ bool check_bounds(tetris_block block, char dir) {
 	if (dir == 'R') { //right
 		int offset = BOARD_X - block.x - 1;
 		for (int i = 0; i < len; i++)
-			if (block.array[i][offset]) return 0;
+			if (block.array[i][offset]) return false;
 	}
 	if (dir == 'D') { // down
 		int offset = BOARD_Y - block.y - 1;
 		for (int i = 0; i < len; i++)
-			if (block.array[offset][i]) return 0;
+			if (block.array[offset][i]) return false;
 	}
 	if (dir == 'L') { // left
 		int offset = block.x * (-1);
 		for (int i = 0; i < len; i++)
-			if (block.array[i][offset]) return 0;
+			if (block.array[i][offset]) return false;
 	}
 	if (dir == 'S') { // spin / rotate
 		if (BOARD_X <= block.x + len) { // near right
 			int offset = BOARD_X - block.x;
 			for (int i = 0; i < len; i++)
-				if (block.array[i][offset]) return 0;
+				if (block.array[i][offset]) return false;
 		} else if (block.x < block.width-1) { // near left
 			int offset = block.x * (-1);
 			for (int i = 0; i < len; i++)
-				if (block.array[i][offset]) return 0;
+				if (block.array[i][offset]) return false;
 		} else { // near bottom
 			int offset = BOARD_Y - block.y - 1;
 			for (int i = 0; i < len; i++)
-				if (block.array[offset][i]) return 0;
+				if (block.array[offset][i]) return false;
 		}
 	}
-	return 1;
+	return true;
 }
 
 // function to rotate a block by 90 degrees clockwise 
@@ -115,10 +116,10 @@ bool would_collide(tt_tetris *tetris, int x_move, int y_move) {
 	int len = block.width;
 	for (int i = 0; i < len; i++) {
 		for (int j = 0; j < len; j++) {
-			if (tetris->board[block.y+len-1-j + y_move][block.x+i + x_move] && block.array[len-1-j][i]) return 1;
+			if (tetris->board[block.y+len-1-j + y_move][block.x+i + x_move] && block.array[len-1-j][i]) return true;
 		}
 	}
-	return 0;
+	return false;
 }
 // returns true, if the complete bounding box of a block
 // is within the game area (bounding box: square, that contains tetromino)
@@ -131,7 +132,7 @@ bool bounding_box_within_gamearea(tetris_block block) {
 	);
 }
 static bool valid_move(tt_tetris *tetris, int x_move, int y_move) {
-	if (would_collide(tetris, x_move, y_move)) return 0;
+	if (would_collide(tetris, x_move, y_move)) return false;
 	
 	tetris_block block = tetris->current_block;
 	int len = block.width;
@@ -157,9 +158,9 @@ static bool valid_move(tt_tetris *tetris, int x_move, int y_move) {
  */
 bool is_row_full(tt_tetris *tetris, int row) {
 	for (int i = 0; i < BOARD_X; i++) {
-		if (!tetris->board[row][i]) return 0;
+		if (!tetris->board[row][i]) return false;
 	}
-	return 1;
+	return true;
 }
 
 /**
@@ -171,23 +172,30 @@ bool is_row_full(tt_tetris *tetris, int row) {
 void clear_row(tt_tetris *tetris, int row) {
 	for (int i = 0; i < BOARD_X; i++) {
 		for (int j = 0; j < row; j++) {
-			// if we are in the top row (eg. row = 0), we cannot assign value above => 0
-			tetris->board[row - j][i] = (row - j) ? tetris->board[row - j - 1][i] : 0;
+			// the second loop moves the blocks above down
+			// if we are in the top row, eg. row = 0 
+			// they will always be zero
+			if (row - j) {
+				tetris->board[row - j][i] = tetris->board[row - j - 1][i];
+			} else tetris->board[row - j][i] = 0;
 		}
 	}
 }
 
 /**
- * Function that clears full rows and adds points to score.
+ * Function that clears full rows and, accumulates the number of rows cleared.
+ * Also applies a multiplier, if multiple rows are cleared simultaneously.
  * @param tetris
  */
 void delete_lines(tt_tetris *tetris) {
+	unsigned row_count = 0;
 	for (int row = tetris->current_block.y; row < BOARD_Y; row++) {
 		if (is_row_full(tetris, row)) {
 			clear_row(tetris, row);
-			// move rows above down | implemented in clear_row() currently
+			++row_count;
 		}
 	}
+	tetris->score += (row_count * 10) * row_count;
 }
 
 /**
@@ -227,6 +235,10 @@ static bool try_rotation(tt_tetris *tetris) {
 	}
 	return valid;
 }
+static bool try_alter_time(tt_tetris *tetris) {
+	tetris->speed = 500000;
+	return true;
+}
 
 
 /**
@@ -245,7 +257,6 @@ static void clear_board(tt_tetris *tetris) {
  * @return a bool that is true if any game over condition is valid.
  */
 bool gm_is_game_over(tt_tetris *tetris) {
-	// return false;
 	return (tetris->current_block.y < 2) && !valid_move(tetris, 0, 1);
 }
 
@@ -262,6 +273,7 @@ void gm_move_block(tt_tetris *tetris, enum tt_movement move) {
 		case TT_FALL_DOWN: try_vertical_move(tetris, TT_FALL_DOWN); break;
 		case TT_ROTATE: try_rotation(tetris); break;
 		case TT_DOWN: try_vertical_move(tetris, TT_DOWN); break;
+		case TT_ALTER_TIME: try_alter_time(tetris); break;
 		default: break;
 	}
 }
@@ -272,7 +284,9 @@ void gm_move_block(tt_tetris *tetris, enum tt_movement move) {
  * @param tetris
  */
 void gm_reset_game(tt_tetris *tetris) {
+	tetris->speed = INIT_SPEED;
 	tetris->score = 0;
+	tetris->block_count = 0;
 	clear_board(tetris);
 	reset_block(tetris);
 }
@@ -287,5 +301,4 @@ void gm_init_game(tt_tetris *tetris) {
 	new_block(tetris);
 	new_block(tetris);
 	gm_reset_game(tetris);
-	tetris->speed = INIT_SPEED;
 }

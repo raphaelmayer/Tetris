@@ -115,6 +115,7 @@ void game_input(tt_tetris *tetris, int key) {
 	case KEY_DOWN: gm_move_block(tetris, TT_DOWN); break;
 	case ' ': gm_move_block(tetris, TT_FALL_DOWN); break;
 	case KEY_UP: gm_move_block(tetris, TT_ROTATE); break;
+	case 's': gm_move_block(tetris, TT_ALTER_TIME); break;
 	default: break;
 	}
 }

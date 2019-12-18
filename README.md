@@ -11,9 +11,6 @@ make && ./main
 
 ##### *to do*: 
 - block spawn
-- clear full rows
-- score
-- speed up over time
-
+- clear full rows (done, aber wies funzt im edgecase ganz oben..ka)
 - slow motion
 - background? ('-')
