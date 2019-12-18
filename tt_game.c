@@ -40,10 +40,10 @@ static void new_block(tt_tetris *tetris) {
 		(tetris_block){ 3, 0, 0, {{ 0, 1, 1 }, { 1, 1, 0 }, { 0, 0, 0 }} }, // S
 		(tetris_block){ 3, 0, 0, {{ 1, 1, 0 }, { 0, 1, 1 }, { 0, 0, 0 }} } // Z
 	};
-	int rnd = rand() % 7;
+	// int rnd = rand() % 7;
 	tetris->current_block = tetris->next_block;
 	reset_block(tetris);
-	tetris->next_block = blocks[rnd];
+	tetris->next_block = blocks[4];
 	// tetris->speed *= .9; // increase game speed with each new block
 }
 
@@ -150,6 +150,47 @@ static bool valid_move(tt_tetris *tetris, int x_move, int y_move) {
 }
 
 /**
+ * returns true, if the given row is full and to be cleared.
+ * param row is the y coordinate of the current block.
+ * @param tetris
+ * @param row
+ */
+bool is_row_full(tt_tetris *tetris, int row) {
+	for (int i = 0; i < BOARD_X; i++) {
+		if (!tetris->board[row][i]) return 0;
+	}
+	return 1;
+}
+
+/**
+ * Function that actually clears a row and moves the rows above down.
+ * param row is the y coordinate of the current block.
+ * @param tetris
+ * @param row
+ */
+void clear_row(tt_tetris *tetris, int row) {
+	for (int i = 0; i < BOARD_X; i++) {
+		for (int j = 0; j < row; j++) {
+			// if we are in the top row (eg. row = 0), we cannot assign value above => 0
+			tetris->board[row - j][i] = (row - j) ? tetris->board[row - j - 1][i] : 0;
+		}
+	}
+}
+
+/**
+ * Function that clears full rows and adds points to score.
+ * @param tetris
+ */
+void delete_lines(tt_tetris *tetris) {
+	for (int row = tetris->current_block.y; row < BOARD_Y; row++) {
+		if (is_row_full(tetris, row)) {
+			clear_row(tetris, row);
+			// move rows above down | implemented in clear_row() currently
+		}
+	}
+}
+
+/**
  * Function that defines the behavior of a falling block.
  * If the block reaches the floor or an occupied pixel below,
  * it will be added to the board to a static / non moving element.
@@ -160,12 +201,13 @@ static bool try_vertical_move(tt_tetris *tetris, enum tt_movement move) {
 	bool valid = valid_move(tetris, 0, 1);
 	if (valid) {
 		++tetris->current_block.y;
-		
+
 		if (move == TT_FALL_DOWN) {
 			try_vertical_move(tetris, TT_FALL_DOWN);
 		}
 	} else {
 		add_block_to_board(tetris);
+		delete_lines(tetris);
 		new_block(tetris);
 	}
 	return valid;

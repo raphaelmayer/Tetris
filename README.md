@@ -11,8 +11,9 @@ make && ./main
 
 ##### *to do*: 
 - block spawn
-- background? ('-')
 - clear full rows
 - score
-- slow motion
 - speed up over time
+
+- slow motion
+- background? ('-')
