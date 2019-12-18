@@ -48,54 +48,8 @@ static void new_block(tt_tetris *tetris) {
 	++tetris->block_count;
 }
 
-/**
- * Before any movement of a block is allowed, collision detection has to be performed.
- * Therefore the new block position, which is calculated by the current position plus the offset
- * [x_move, y_move] given, has to be checked for overlaps with possible occupied pixels.
- * @param tetris
- * @param x_move
- * @param y_move
- * @return
- */
-bool check_bounds(tetris_block block, char dir) {
-	int len = block.width;
-	// dir...direction: R, L, D, S
-	if (dir == 'R') { //right
-		int offset = BOARD_X - block.x - 1;
-		for (int i = 0; i < len; i++)
-			if (block.array[i][offset]) return false;
-	}
-	if (dir == 'D') { // down
-		int offset = BOARD_Y - block.y - 1;
-		for (int i = 0; i < len; i++)
-			if (block.array[offset][i]) return false;
-	}
-	if (dir == 'L') { // left
-		int offset = block.x * (-1);
-		for (int i = 0; i < len; i++)
-			if (block.array[i][offset]) return false;
-	}
-	if (dir == 'S') { // spin / rotate
-		if (BOARD_X <= block.x + len) { // near right
-			int offset = BOARD_X - block.x;
-			for (int i = 0; i < len; i++)
-				if (block.array[i][offset]) return false;
-		} else if (block.x < block.width-1) { // near left
-			int offset = block.x * (-1);
-			for (int i = 0; i < len; i++)
-				if (block.array[i][offset]) return false;
-		} else { // near bottom
-			int offset = BOARD_Y - block.y - 1;
-			for (int i = 0; i < len; i++)
-				if (block.array[offset][i]) return false;
-		}
-	}
-	return true;
-}
-
 // function to rotate a block by 90 degrees clockwise 
 tetris_block rotate_block(tetris_block block) { 
-	// tetris_block block = tetris->current_block;
 	int len = block.width;
     for (int i = 0; i < len / 2; i++) { 
         for (int j = i; j < len - i - 1; j++) { 
@@ -109,50 +63,58 @@ tetris_block rotate_block(tetris_block block) {
 	return block;
 } 
 
-// returns true, if the current block would collide with any other 
-// already set blocks when doing the proposed move
+/**
+ * Helper function that returns true, if any tile of the given block's bounding box 
+ * is not in the game area. Takes offset to adjust which tile or to test a move.
+ * bounding box: square, that contains the tetromino
+ * @param block
+ * @param x_offset
+ * @param y_offset
+ */
+bool is_out_of_bounds(tetris_block block, int x_offset, int y_offset) {
+	return (
+		block.y + y_offset < 0 ||
+		block.x + x_offset < 0 ||
+		block.y + y_offset >= BOARD_Y ||
+		block.x + x_offset >= BOARD_X
+	);
+}
+/**
+ * Before any movement of a block is allowed, collision detection has to be performed.
+ * Therefore the new block position, which is calculated by the current position plus the offset
+ * [x_move, y_move] given, has to be checked for overlaps with possible occupied pixels.
+ * Returns true, if the current block would collide with any other block.
+ * @param tetris
+ * @param x_move
+ * @param y_move
+ * @return
+ */ 
 bool would_collide(tt_tetris *tetris, int x_move, int y_move) {
-	tetris_block block = tetris->current_block;
+	// if no moves, it is rotation => block needs to be rotated before checking collision
+	tetris_block block = (x_move || y_move) ? tetris->current_block : rotate_block(tetris->current_block);
 	int len = block.width;
+	// loops through all tiles of a block
 	for (int i = 0; i < len; i++) {
 		for (int j = 0; j < len; j++) {
-			if (tetris->board[block.y+len-1-j + y_move][block.x+i + x_move] && block.array[len-1-j][i]) return true;
+			// checks all tiles of the board where the block would land and 
+			// the corresponding tile of the block. if both are 1 => collision
+			if (block.array[j][i] && tetris->board[block.y + y_move + j][block.x + x_move + i]) return true;
+			// or if corresponding tiles are 1 and out of bounds => collision
+			if (block.array[j][i] && is_out_of_bounds(block, x_move + i, y_move + j)) return true;
 		}
 	}
 	return false;
 }
-// returns true, if the complete bounding box of a block
-// is within the game area (bounding box: square, that contains tetromino)
-bool bounding_box_within_gamearea(tetris_block block) {
-	int len = block.width;
-	return (
-		block.x >= 0 && 
-		block.x + len <= BOARD_X && 
-		block.y + len <= BOARD_Y
-	);
-}
-static bool valid_move(tt_tetris *tetris, int x_move, int y_move) {
-	if (would_collide(tetris, x_move, y_move)) return false;
-	
-	tetris_block block = tetris->current_block;
-	int len = block.width;
 
-	if (x_move < 0) { // left
-		return 0 < block.x || check_bounds(block, 'L');
-	}	
-	if (x_move > 0) { // right
-		return block.x + len < BOARD_X || check_bounds(block, 'R');
-	}	
-	if (!y_move && !x_move) { // rotation
-		return bounding_box_within_gamearea(block) || check_bounds(rotate_block(block), 'S');
-	}
-	// down
-	return (block.y + len < BOARD_Y) || check_bounds(block, 'D');
+static bool valid_move(tt_tetris *tetris, int x_move, int y_move) {
+	// return !would_collide(tetris, x_move, y_move);
+	if (would_collide(tetris, x_move, y_move)) return false;
+	return true;
 }
 
 /**
- * returns true, if the given row is full and to be cleared.
- * param row is the y coordinate of the current block.
+ * Helper function that returns true, if the given row is full and to be cleared.
+ * Argument row is the y coordinate of the current block.
  * @param tetris
  * @param row
  */
@@ -164,7 +126,7 @@ bool is_row_full(tt_tetris *tetris, int row) {
 }
 
 /**
- * Function that actually clears a row and moves the rows above down.
+ * Function that actually clears a single row and moves the rows above down.
  * param row is the y coordinate of the current block.
  * @param tetris
  * @param row
@@ -173,11 +135,8 @@ void clear_row(tt_tetris *tetris, int row) {
 	for (int i = 0; i < BOARD_X; i++) {
 		for (int j = 0; j < row; j++) {
 			// the second loop moves the blocks above down
-			// if we are in the top row, eg. row = 0 
-			// they will always be zero
-			if (row - j) {
-				tetris->board[row - j][i] = tetris->board[row - j - 1][i];
-			} else tetris->board[row - j][i] = 0;
+			// the top row will always be zero
+			tetris->board[row - j][i] = (row - j) ? tetris->board[row - j - 1][i] : 0;
 		}
 	}
 }
@@ -210,6 +169,7 @@ static bool try_vertical_move(tt_tetris *tetris, enum tt_movement move) {
 	if (valid) {
 		++tetris->current_block.y;
 
+		// recursively implement the fall down mechanic
 		if (move == TT_FALL_DOWN) {
 			try_vertical_move(tetris, TT_FALL_DOWN);
 		}

@@ -12,5 +12,7 @@ make && ./main
 ##### *to do*: 
 - block spawn
 - clear full rows (done, aber wies funzt im edgecase ganz oben..ka)
-- slow motion
 - background? ('-')
+
+- colors?
+- slow motion
