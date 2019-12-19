@@ -36,8 +36,8 @@ static void reset_block(tt_tetris *tetris) {
 static void new_block(tt_tetris *tetris) {
 	tetris_block blocks[] = { 
 		(tetris_block){ 2, 0, 0, {{ 1, 1 }, { 1, 1 }} }, // O
-		(tetris_block){ 3, 0, 0, {{ 0, 1, 0 }, { 0, 1, 0 }, { 1, 1, 0 }} }, // J
-		(tetris_block){ 3, 0, 0, {{ 0, 1, 0 }, { 0, 1, 0 }, { 0, 1, 1 }} }, // L
+		(tetris_block){ 3, 0, 0, {{ 1, 0, 0 }, { 1, 1, 1 }, { 0, 0, 0 }} }, // J
+		(tetris_block){ 3, 0, 0, {{ 0, 0, 1 }, { 1, 1, 1 }, { 0, 0, 0 }} }, // L
 		(tetris_block){ 3, 0, 0, {{ 0, 1, 0 }, { 1, 1, 1 }, { 0, 0, 0 }} }, // T
 		(tetris_block){ 4, 0, 0, {{ 0, 0, 0, 0 }, { 1, 1, 1, 1 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }} }, // I
 		(tetris_block){ 3, 0, 0, {{ 0, 1, 1 }, { 1, 1, 0 }, { 0, 0, 0 }} }, // S
