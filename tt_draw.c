@@ -81,7 +81,7 @@ bool dw_init_windows(tt_tetris *tetris) {
  */
 void dw_draw_main_menu(tt_tetris *tetris, cursor_main_menu menuitem) {
 	char menu[NUM_MAIN_MENU][11] = { "New Game", "High Score", "Help menu", "Quit" };
-	wclear(tetris->w_main);
+	werase(tetris->w_main);
 	box(tetris->w_main, 0, 0);
 	mvwprintw(tetris->w_main, 0, MAIN_WIN_X / 2 - 7, "[ Main Menu ]");
 	for (int i = 0; i < NUM_MAIN_MENU; i++) {
@@ -102,7 +102,7 @@ void dw_draw_main_menu(tt_tetris *tetris, cursor_main_menu menuitem) {
  * @param tetris
  */
 void dw_draw_game_over(tt_tetris *tetris) {
-	wclear(tetris->w_game_over);
+	werase(tetris->w_game_over);
 	box(tetris->w_game_over, 0, 0);
 	mvwprintw(tetris->w_game_over, 0, SUB_WIN_X / 2 - 7, "[ Game Over ]");
 	mvwaddstr(tetris->w_game_over, 8, 3, "Press any key to restart!");
@@ -115,7 +115,7 @@ void dw_draw_game_over(tt_tetris *tetris) {
  * @param tetris
  */
 void dw_draw_game_window(tt_tetris *tetris) {
-	wclear(tetris->w_game);
+	werase(tetris->w_game);
 	box(tetris->w_game, 0, 0);
 	mvwprintw(tetris->w_game, 0, MAIN_WIN_X / 2 - 9, "[ Terminal-Tetris ]");
 	mvwprintw(tetris->w_game, MAIN_WIN_Y + 1, MAIN_WIN_X - 15, "[ Score: %3d ]", tetris->score);

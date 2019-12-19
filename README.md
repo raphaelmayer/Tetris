@@ -12,6 +12,7 @@ make && ./main
 ##### *to do*: 
 - clear full rows (done, aber wies funzt im edgecase ganz oben..ka)
 - background? ('-')
+- flackern brate!
 
 - slow motion
 - preview where block lands
