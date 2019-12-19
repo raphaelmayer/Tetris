@@ -151,6 +151,7 @@ void dw_draw_game_window(tt_tetris *tetris) {
 	}
 	
 	// draw next block
+	wattron(tetris->w_game, COLOR_PAIR(tetris->next_block.color));
 	for (int i = 0; i < tetris->next_block.width; i++) {
 		for (int j = 0; j < tetris->next_block.width; j++) {
 			if (tetris->next_block.array[i][j]) {
@@ -158,7 +159,8 @@ void dw_draw_game_window(tt_tetris *tetris) {
 			}
 		}
 	}
-	
+	wattroff(tetris->w_game, COLOR_PAIR(tetris->next_block.color));
+
 	// draw current block to the board
 	wattron(tetris->w_game, COLOR_PAIR(tetris->current_block.color));
 	for (int y = 0; y < tetris->current_block.width; ++y) {
