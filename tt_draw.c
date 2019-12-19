@@ -140,10 +140,10 @@ void dw_draw_game_window(tt_tetris *tetris) {
 	mvwprintw(tetris->w_game, 24 + gameing_area_y, gameing_area_x - 10, "block_count: %d", tetris->block_count);
 	
 	// draw next block display borders
-	mvwprintw(tetris->w_game, gameing_area_y, gameing_area_x - 15, "=========");
-	mvwprintw(tetris->w_game, gameing_area_y + 5, gameing_area_x - 15, "=========");
+	mvwprintw(tetris->w_game, gameing_area_y, gameing_area_x - 16, "=========");
+	mvwprintw(tetris->w_game, gameing_area_y + 5, gameing_area_x - 16, "=========");
 	for (int i = 1; i < 5; i++) {
-		mvwprintw(tetris->w_game, gameing_area_y + i, gameing_area_x - 15, "|");
+		mvwprintw(tetris->w_game, gameing_area_y + i, gameing_area_x - 17, "|");
 		mvwprintw(tetris->w_game, gameing_area_y + i, gameing_area_x - 7, "|");
 	}
 	
@@ -151,7 +151,7 @@ void dw_draw_game_window(tt_tetris *tetris) {
 	for (int i = 0; i < tetris->next_block.width; i++) {
 		for (int j = 0; j < tetris->next_block.width; j++) {
 			if (tetris->next_block.array[i][j]) {
-				mvwprintw(tetris->w_game, i + gameing_area_y+1, gameing_area_x - 13 + j*2, "%c", CHAR_OCCUPIED);
+				mvwprintw(tetris->w_game, i + gameing_area_y+1, gameing_area_x - 15 + j*2, "%c", CHAR_OCCUPIED);
 			}
 		}
 	}

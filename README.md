@@ -10,9 +10,10 @@ make && ./main
 ```
 
 ##### *to do*: 
-- block spawn
 - clear full rows (done, aber wies funzt im edgecase ganz oben..ka)
 - background? ('-')
 
 - colors?
 - slow motion
+- preview where block lands
+- hold block
