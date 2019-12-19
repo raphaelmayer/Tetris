@@ -35,6 +35,7 @@ enum tt_movement { TT_LEFT, TT_RIGHT, TT_DOWN, TT_FALL_DOWN, TT_ROTATE, TT_ALTER
 typedef struct {
 	int width, y, x;
 	char array[5][5];
+	short color;
 } tetris_block;
 
 /**
@@ -53,6 +54,7 @@ typedef struct {
  */
 typedef struct {
 	char board[BOARD_Y][BOARD_X];
+	char color_board[BOARD_Y][BOARD_X];
 	tetris_block next_block;
 	tetris_block current_block;
 	unsigned score;

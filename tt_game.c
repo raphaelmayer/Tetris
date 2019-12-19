@@ -12,7 +12,8 @@ static void add_block_to_board(tt_tetris *tetris) {
 	for (int i = 0; i < len; i++) {
 		for (int j = 0; j < len; j++) {
 			if (tetris->current_block.array[i][j]) {
-				tetris->board[tetris->current_block.y + i][tetris->current_block.x + j] = 1;		
+				tetris->board[tetris->current_block.y + i][tetris->current_block.x + j] = 1;
+				tetris->color_board[tetris->current_block.y + i][tetris->current_block.x + j] = tetris->current_block.color;		
 			}
 		}
 	}
@@ -35,13 +36,13 @@ static void reset_block(tt_tetris *tetris) {
  */
 static void new_block(tt_tetris *tetris) {
 	tetris_block blocks[] = { 
-		(tetris_block){ 2, 0, 0, {{ 1, 1 }, { 1, 1 }} }, // O
-		(tetris_block){ 3, 0, 0, {{ 1, 0, 0 }, { 1, 1, 1 }, { 0, 0, 0 }} }, // J
-		(tetris_block){ 3, 0, 0, {{ 0, 0, 1 }, { 1, 1, 1 }, { 0, 0, 0 }} }, // L
-		(tetris_block){ 3, 0, 0, {{ 0, 1, 0 }, { 1, 1, 1 }, { 0, 0, 0 }} }, // T
-		(tetris_block){ 4, 0, 0, {{ 0, 0, 0, 0 }, { 1, 1, 1, 1 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }} }, // I
-		(tetris_block){ 3, 0, 0, {{ 0, 1, 1 }, { 1, 1, 0 }, { 0, 0, 0 }} }, // S
-		(tetris_block){ 3, 0, 0, {{ 1, 1, 0 }, { 0, 1, 1 }, { 0, 0, 0 }} } // Z
+		(tetris_block){ 2, 0, 0, {{ 1, 1 }, { 1, 1 }}, 1 }, // O
+		(tetris_block){ 3, 0, 0, {{ 1, 0, 0 }, { 1, 1, 1 }, { 0, 0, 0 }}, 2 }, // J
+		(tetris_block){ 3, 0, 0, {{ 0, 0, 1 }, { 1, 1, 1 }, { 0, 0, 0 }}, 3 }, // L
+		(tetris_block){ 3, 0, 0, {{ 0, 1, 0 }, { 1, 1, 1 }, { 0, 0, 0 }}, 4 }, // T
+		(tetris_block){ 4, 0, 0, {{ 0, 0, 0, 0 }, { 1, 1, 1, 1 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }}, 5 }, // I
+		(tetris_block){ 3, 0, 0, {{ 0, 1, 1 }, { 1, 1, 0 }, { 0, 0, 0 }}, 6 }, // S
+		(tetris_block){ 3, 0, 0, {{ 1, 1, 0 }, { 0, 1, 1 }, { 0, 0, 0 }}, 7 } // Z
 	};
 	int rnd = rand() % 7;
 	tetris->current_block = tetris->next_block;

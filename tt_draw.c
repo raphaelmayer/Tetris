@@ -129,7 +129,9 @@ void dw_draw_game_window(tt_tetris *tetris) {
 		mvwprintw(tetris->w_game, y + gameing_area_y, gameing_area_x + 21, " ||>");
 		for (int x = 0; x < BOARD_X; x++) {
 			if (tetris->board[y][x]) {
+				wattron(tetris->w_game, COLOR_PAIR(tetris->color_board[y][x]));
 				mvwprintw(tetris->w_game, gameing_area_y + y, gameing_area_x + x*2, "%c", CHAR_OCCUPIED);
+				wattroff(tetris->w_game, COLOR_PAIR(tetris->color_board[y][x]));
 			}
 		}
 	}
@@ -142,6 +144,7 @@ void dw_draw_game_window(tt_tetris *tetris) {
 	// draw next block display borders
 	mvwprintw(tetris->w_game, gameing_area_y, gameing_area_x - 16, "=========");
 	mvwprintw(tetris->w_game, gameing_area_y + 5, gameing_area_x - 16, "=========");
+
 	for (int i = 1; i < 5; i++) {
 		mvwprintw(tetris->w_game, gameing_area_y + i, gameing_area_x - 17, "|");
 		mvwprintw(tetris->w_game, gameing_area_y + i, gameing_area_x - 7, "|");
@@ -157,6 +160,7 @@ void dw_draw_game_window(tt_tetris *tetris) {
 	}
 	
 	// draw current block to the board
+	wattron(tetris->w_game, COLOR_PAIR(tetris->current_block.color));
 	for (int y = 0; y < tetris->current_block.width; ++y) {
 		for (int x = 0; x < tetris->current_block.width; ++x) {
 			int fx = tetris->current_block.x + x;
@@ -167,6 +171,7 @@ void dw_draw_game_window(tt_tetris *tetris) {
 			}
 		}
 	}
+	wattroff(tetris->w_game, COLOR_PAIR(tetris->current_block.color));
 	wrefresh(tetris->w_game);
 	refresh();
 }
