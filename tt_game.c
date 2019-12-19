@@ -7,13 +7,14 @@
  * @param tetris
  */
 static void add_block_to_board(tt_tetris *tetris) {
-	int len = tetris->current_block.width;
-	// int offset_y = BOARD_Y - tetris->current_block.y - len; // for empty rows, when reaching ground
+	tetris_block block = tetris->current_block;
+	int len = block.width;
 	for (int i = 0; i < len; i++) {
 		for (int j = 0; j < len; j++) {
-			if (tetris->current_block.array[i][j]) {
-				tetris->board[tetris->current_block.y + i][tetris->current_block.x + j] = 1;
-				tetris->color_board[tetris->current_block.y + i][tetris->current_block.x + j] = tetris->current_block.color;		
+			if (block.array[i][j]) {
+				// block.color is a nr between 1 and 7, which is true,
+				// so it still works like before, where 1 got assigned for full tiles.
+				tetris->board[block.y + i][block.x + j] = block.color;
 			}
 		}
 	}
@@ -36,13 +37,13 @@ static void reset_block(tt_tetris *tetris) {
  */
 static void new_block(tt_tetris *tetris) {
 	tetris_block blocks[] = { 
-		(tetris_block){ 2, 0, 0, {{ 1, 1 }, { 1, 1 }}, 1 }, // O
-		(tetris_block){ 3, 0, 0, {{ 1, 0, 0 }, { 1, 1, 1 }, { 0, 0, 0 }}, 2 }, // J
-		(tetris_block){ 3, 0, 0, {{ 0, 0, 1 }, { 1, 1, 1 }, { 0, 0, 0 }}, 3 }, // L
-		(tetris_block){ 3, 0, 0, {{ 0, 1, 0 }, { 1, 1, 1 }, { 0, 0, 0 }}, 4 }, // T
-		(tetris_block){ 4, 0, 0, {{ 0, 0, 0, 0 }, { 1, 1, 1, 1 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }}, 5 }, // I
-		(tetris_block){ 3, 0, 0, {{ 0, 1, 1 }, { 1, 1, 0 }, { 0, 0, 0 }}, 6 }, // S
-		(tetris_block){ 3, 0, 0, {{ 1, 1, 0 }, { 0, 1, 1 }, { 0, 0, 0 }}, 7 } // Z
+		(tetris_block){ 2, 0, 0, {{ 1, 1 }, { 1, 1 }}, O_BLOCK },
+		(tetris_block){ 3, 0, 0, {{ 1, 0, 0 }, { 1, 1, 1 }, { 0, 0, 0 }}, J_BLOCK },
+		(tetris_block){ 3, 0, 0, {{ 0, 0, 1 }, { 1, 1, 1 }, { 0, 0, 0 }}, L_BLOCK },
+		(tetris_block){ 3, 0, 0, {{ 0, 1, 0 }, { 1, 1, 1 }, { 0, 0, 0 }}, T_BLOCK },
+		(tetris_block){ 4, 0, 0, {{ 0, 0, 0, 0 }, { 1, 1, 1, 1 }, { 0, 0, 0, 0 }, { 0, 0, 0, 0 }}, I_BLOCK },
+		(tetris_block){ 3, 0, 0, {{ 0, 1, 1 }, { 1, 1, 0 }, { 0, 0, 0 }}, S_BLOCK },
+		(tetris_block){ 3, 0, 0, {{ 1, 1, 0 }, { 0, 1, 1 }, { 0, 0, 0 }}, Z_BLOCK }
 	};
 	int rnd = rand() % 7;
 	tetris->current_block = tetris->next_block;

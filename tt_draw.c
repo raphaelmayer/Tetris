@@ -129,9 +129,9 @@ void dw_draw_game_window(tt_tetris *tetris) {
 		mvwprintw(tetris->w_game, y + gameing_area_y, gameing_area_x + 21, " ||>");
 		for (int x = 0; x < BOARD_X; x++) {
 			if (tetris->board[y][x]) {
-				wattron(tetris->w_game, COLOR_PAIR(tetris->color_board[y][x]));
+				wattron(tetris->w_game, COLOR_PAIR(tetris->board[y][x]));
 				mvwprintw(tetris->w_game, gameing_area_y + y, gameing_area_x + x*2, "%c", CHAR_OCCUPIED);
-				wattroff(tetris->w_game, COLOR_PAIR(tetris->color_board[y][x]));
+				wattroff(tetris->w_game, COLOR_PAIR(tetris->board[y][x]));
 			}
 		}
 	}

@@ -17,6 +17,15 @@
 /** Time delay between the frames rendered. This waiting is performed at every wgetch call. */
 #define TIME_DELAY 10
 
+// define color pairs
+#define O_BLOCK 1
+#define J_BLOCK 2
+#define L_BLOCK 3
+#define T_BLOCK 4
+#define I_BLOCK 5
+#define S_BLOCK 6
+#define Z_BLOCK 7
+
 /**
  * Enum to store the state of the currently selected main menu item.
  */
@@ -54,7 +63,6 @@ typedef struct {
  */
 typedef struct {
 	char board[BOARD_Y][BOARD_X];
-	char color_board[BOARD_Y][BOARD_X];
 	tetris_block next_block;
 	tetris_block current_block;
 	unsigned score;

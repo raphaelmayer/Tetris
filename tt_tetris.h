@@ -18,4 +18,9 @@ tt_tetris *tt_init_tetris();
  */
 void tt_destroy_tetris(tt_tetris *tetris);
 
+/**
+ * Initializes colors on supported terminals.
+ */
+void enable_color();
+
 #endif // TT_TETRIS_H
