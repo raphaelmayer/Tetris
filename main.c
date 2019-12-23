@@ -20,7 +20,7 @@ int main(void) {
 	while (cursor != QUIT) {
 		switch (cursor = main_menu(tetris, cursor)) {
 		case NEW_GAME: game_menu(tetris); break;
-		case HIGH_SCORE: break;
+		case HIGH_SCORE: dw_show_static_window(tetris->w_highscore, tetris->w_main); break;
 		case HELP_MENU: dw_show_static_window(tetris->w_help, tetris->w_main); break;
 		default: break;
 		}
@@ -98,7 +98,7 @@ void game_menu(tt_tetris *tetris) {
 		dw_draw_game_window(tetris);
 	}
 	dw_draw_game_over(tetris);
-	dw_show_static_window(tetris->w_game_over, tetris->w_game);
+	dw_show_static_window(tetris->w_game_over, tetris->w_game_over);
 	game_menu(tetris);
 }
 
@@ -108,6 +108,7 @@ void game_menu(tt_tetris *tetris) {
  * @param key that has been pressed.
  */
 void game_input(tt_tetris *tetris, int key) {
+	// if (tetris->is_over) {}
 	switch (key) {
 	case 'h': dw_show_static_window(tetris->w_help, tetris->w_game);
 	case KEY_LEFT: gm_move_block(tetris, TT_LEFT); break;

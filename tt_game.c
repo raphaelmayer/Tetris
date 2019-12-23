@@ -1,5 +1,6 @@
 #include "tt_game.h"
 #include "tt_types.h"
+#include "tt_score.h"
 
 /**
  * Adds the currently falling block to the board.
@@ -255,7 +256,9 @@ static void clear_board(tt_tetris *tetris) {
  * @return a bool that is true if any game over condition is valid.
  */
 bool gm_is_game_over(tt_tetris *tetris) {
-	return (tetris->current_block.y < 2) && !valid_move(tetris, 0, 1, false);
+	bool is_over = (tetris->current_block.y < 1) && !valid_move(tetris, 0, 1, false);
+	if (is_over) update_highscores(tetris->score);
+	return is_over;
 }
 
 /**

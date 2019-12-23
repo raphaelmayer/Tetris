@@ -48,6 +48,16 @@ typedef struct {
 } tetris_block;
 
 /**
+ * Packs all needed information about a block into a struct.
+ * This includes the current block position [x, y] as well as the squared bounding box of the block.
+ * The box shape is stored inside the array.
+ */
+typedef struct {
+	char name[10];
+	unsigned score;
+} highscore;
+
+/**
  * Packs all needed information about the whole program into one big struct
  * In the whole program a pointer of this struct is given to different functions
  * with which different gaming properties can be manipulated.
@@ -71,6 +81,7 @@ typedef struct {
 
 	WINDOW *w_main;
 	WINDOW *w_help;
+	WINDOW *w_highscore; 
 	WINDOW *w_game;
 	WINDOW *w_game_over;
 } tt_tetris;

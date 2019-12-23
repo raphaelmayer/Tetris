@@ -1,4 +1,6 @@
+#include "tt_types.h"
 #include "tt_draw.h"
+#include "tt_score.h"
 
 /**
  * A wrapper function for creating a new window with ncurses and
@@ -58,6 +60,48 @@ static WINDOW *init_help_window(int pos_y, int pos_x, int size_y, int size_x) {
 }
 
 /**
+ * Function for building a help menu with ncurses.
+ * The returned windows has to be freed at the end of its life cycle
+ * (dw_delete_windows).
+ * @param pos_y
+ * @param pos_x
+ * @param size_y
+ * @param size_x
+ * @return a pointer to the initialized help menu.
+ */
+static WINDOW *init_highscore_window(int pos_y, int pos_x, int size_y, int size_x) {
+	WINDOW *window = init_window(pos_y, pos_x, size_y, size_x);
+	if (!window) {
+		return NULL;
+	}
+	// read highscores from local file
+	highscore highscores[10];
+	FILE *file;
+
+	file = fopen("./highscores.txt", "rb");
+	if (file == NULL) {
+		// create new file, if no file exists
+		highscore default_list[10];
+		for (int i = 0; i < 10; i++) {
+			default_list[i] = (highscore){ "NA", 0 };
+		}
+		
+		file = fopen("./highscores.txt", "wb");
+		fwrite(default_list, sizeof(default_list), 1, file);
+		fclose(file);
+	}
+    fread(highscores, sizeof(highscores), 1, file);
+
+	box(window, 0, 0);
+	for (int i = 0; i < 9; ++i) {
+		mvwprintw(window, SUB_WIN_Y / 6 + i, SUB_WIN_X / 6, "%d. %10s -- %u pts",i+1, highscores[i].name, highscores[i].score);
+	}
+	mvwprintw(window, 0, SUB_WIN_X / 2 - 7, "[ Highscores ]");
+	mvwaddstr(window, 5 * SUB_WIN_Y / 6, SUB_WIN_X / 6, "Press ENTER to go back!");
+	return window;
+}
+
+/**
  * Initializes all needed gaming windows for the program and stores them in the
  * tetris struct.
  * @param tetris tt_tetris struct into which the gaming windows should be
@@ -65,13 +109,12 @@ static WINDOW *init_help_window(int pos_y, int pos_x, int size_y, int size_x) {
  * @return false if any window has failed to be created.
  */
 bool dw_init_windows(tt_tetris *tetris) {
-	tetris->w_help = init_help_window(SUB_WIN_Y, SUB_WIN_X, (MAIN_WIN_Y - SUB_WIN_Y) / 2,
-	                                  (MAIN_WIN_X - SUB_WIN_X) / 2);
-	tetris->w_game_over = init_window(SUB_WIN_Y, SUB_WIN_X, (MAIN_WIN_Y - SUB_WIN_Y) / 2,
-	                                  (MAIN_WIN_X - SUB_WIN_X) / 2);
+	tetris->w_help = init_help_window(SUB_WIN_Y, SUB_WIN_X, (MAIN_WIN_Y - SUB_WIN_Y) / 2, (MAIN_WIN_X - SUB_WIN_X) / 2);
+	tetris->w_highscore = init_highscore_window(SUB_WIN_Y, SUB_WIN_X, (MAIN_WIN_Y - SUB_WIN_Y) / 2, (MAIN_WIN_X - SUB_WIN_X) / 2);
+	tetris->w_game_over = init_window(SUB_WIN_Y, SUB_WIN_X, (MAIN_WIN_Y - SUB_WIN_Y) / 2, (MAIN_WIN_X - SUB_WIN_X) / 2);
 	tetris->w_game = init_window(MAIN_WIN_Y + 2, MAIN_WIN_X + 2, 0, 0);
 	tetris->w_main = init_window(MAIN_WIN_Y + 2, MAIN_WIN_X + 2, 0, 0);
-	return tetris->w_help && tetris->w_game_over && tetris->w_game && tetris->w_main;
+	return tetris->w_help && tetris->w_game_over && tetris->w_game && tetris->w_main && tetris->w_highscore;
 }
 
 /**
@@ -92,8 +135,7 @@ void dw_draw_main_menu(tt_tetris *tetris, cursor_main_menu menuitem) {
 		mvwaddstr(tetris->w_main, MAIN_WIN_Y / 6 + i, MAIN_WIN_X / 6, menu[i]);
 		wattroff(tetris->w_main, A_REVERSE);
 	}
-	mvwaddstr(tetris->w_main, 5 * MAIN_WIN_Y / 6, MAIN_WIN_X / 6,
-	          "Use arrow keys to move! Press ENTER to select!");
+	mvwaddstr(tetris->w_main, 5 * MAIN_WIN_Y / 6, MAIN_WIN_X / 6, "Use arrow keys to move! Press ENTER to select!");
 	wrefresh(tetris->w_main);
 }
 
@@ -102,6 +144,8 @@ void dw_draw_main_menu(tt_tetris *tetris, cursor_main_menu menuitem) {
  * @param tetris
  */
 void dw_draw_game_over(tt_tetris *tetris) {
+	// update scores
+	tetris->w_highscore = init_highscore_window(SUB_WIN_Y, SUB_WIN_X, (MAIN_WIN_Y - SUB_WIN_Y) / 2, (MAIN_WIN_X - SUB_WIN_X) / 2);
 	werase(tetris->w_game_over);
 	box(tetris->w_game_over, 0, 0);
 	mvwprintw(tetris->w_game_over, 0, SUB_WIN_X / 2 - 7, "[ Game Over ]");
@@ -199,6 +243,7 @@ void dw_show_static_window(WINDOW *w_next, WINDOW *w_next_next) {
  */
 void dw_delete_windows(tt_tetris *tetris) {
 	delwin(tetris->w_help);
+	delwin(tetris->w_highscore);
 	delwin(tetris->w_game_over);
 	delwin(tetris->w_game);
 	delwin(tetris->w_main);

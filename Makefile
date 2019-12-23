@@ -6,6 +6,6 @@ LDLIBS = -lncurses
 all: main
 
 clean:
-	$(RM) main tt_tetris.o tt_game.o tt_draw.o
+	$(RM) main tt_tetris.o tt_game.o tt_draw.o tt_score.o
 
-main: main.c tt_tetris.o tt_game.o tt_draw.o
+main: main.c tt_tetris.o tt_game.o tt_draw.o tt_score.o
