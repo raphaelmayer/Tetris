@@ -151,6 +151,7 @@ void dw_draw_game_over(tt_tetris *tetris) {
 	mvwprintw(tetris->w_game_over, 0, SUB_WIN_X / 2 - 7, "[ Game Over ]");
 	mvwaddstr(tetris->w_game_over, 8, 3, "Press any key to restart!");
 	mvwprintw(tetris->w_game_over, 5, 3, "Score: %3d", tetris->score);
+	getchar();
 }
 
 /**

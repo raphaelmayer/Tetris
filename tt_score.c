@@ -25,7 +25,7 @@ highscore *create_default_list() {
 
 /**
  * Reads the highscore list from a local file. If no such file exists,
- * it creates a default list by calling create_default_list();.
+ * it creates a default list by calling create_default_list.
  * @return
  */
 highscore *read_highscores() {
@@ -59,7 +59,7 @@ void update_highscores(int score) {
 			// insert new score with a name into arr
 			highscores[i].score = score;
 			printf("Enter your name: ");
-			scanf("%s", highscores[i].name);
+			scanf("%s", highscores[i].name); // potential overflow?
 
 			// write array to file
 			file = fopen("./highscores.txt", "wb");

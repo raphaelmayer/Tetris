@@ -98,7 +98,7 @@ void game_menu(tt_tetris *tetris) {
 		dw_draw_game_window(tetris);
 	}
 	dw_draw_game_over(tetris);
-	dw_show_static_window(tetris->w_game_over, tetris->w_game_over);
+	dw_show_static_window(tetris->w_game_over, tetris->w_highscore);
 	game_menu(tetris);
 }
 
